@@ -2,18 +2,19 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
-app.middleware(
+
+app.add_middleware(
     CORSMiddleware,
     allow_origins=['*'],
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-app.get('/')
+@app.get('/')
 def root():
     return {'hello': 'Word'}
 
 
-app.get('/test')
+@app.get('/test')
 def test():
     return {'data': 'data from backend'}
