@@ -1,3 +1,4 @@
 uvicorn
 uvicorn[standard]
 fastapi
+python-dotenv==1.0.0
