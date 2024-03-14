@@ -2,6 +2,7 @@ import mysql.connector
 import dotenv
 import os
 
+
 class ConnectionMySQL:
 
     def __init__(self):
@@ -17,7 +18,7 @@ class ConnectionMySQL:
             self.connection = mysql.connector.connect(
                 host=self.host,
                 user=self.user,
-                password =self.password,
+                password=self.password,
                 database=self.database
             )
             if self.connection.is_connected():
@@ -31,20 +32,22 @@ class ConnectionMySQL:
             self.connection.close()
             print('Connection close')
 
-    def insert_query(self, query):
+    def execute_query(self, query):
 
-        if self.connection:
-            try:
+        try:
+            self.connect()
+            if self.connection:
                 cursor = self.connection.cursor()
                 cursor.execute(query)
                 self.connection.commit()
                 cursor.close()
-                return 'insert successfull'
-            except Exception as e:
-                print(f'error in insert query: {e}')
-        
+                return 'query execute success'
+        except Exception as e:
+            print(f'error in execute query: {e}')
+        finally:
+            self.desconnect()
 
-    def execute_query(self, query):
+    def fetch_query(self, query):
         """
         This function is only read data from database
 
@@ -52,11 +55,23 @@ class ConnectionMySQL:
 
         returns: list[]
         """
-        if self.connection:
-            cursor = self.connection.cursor()
-            cursor.execute(query)
-            #commit for insert data
-            # self.connection.commit()
-            res = cursor.fetchall()
-            cursor.close()
-            return res
+        try:
+            self.connect()
+            if self.connection:
+                cursor = self.connection.cursor()
+                cursor.execute(query)
+                rows = cursor.fetchall()
+                column_names = [column[0] for column in cursor.description]
+
+                results = []
+                for row in rows:
+                    result_dict = dict(zip(column_names, row))
+                    results.append(result_dict)
+                cursor.close()
+                return results
+            
+        except Exception as e:
+            print(f'error in fetch cuery: {e}')
+        
+        finally:
+            self.desconnect()
